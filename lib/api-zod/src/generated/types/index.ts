@@ -7,3 +7,6 @@
  */
 
 export * from "./healthStatus";
+export * from "./transformPhotoBody";
+export * from "./transformPhotoBodyDirection";
+export * from "./transformPhotoResponse";

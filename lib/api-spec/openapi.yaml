@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: photo
+    description: Photo transformation operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /photo/transform:
+    post:
+      operationId: transformPhoto
+      tags: [photo]
+      summary: Transform a photo from day to night or night to day
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransformPhotoBody"
+      responses:
+        "200":
+          description: Transformed image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransformPhotoResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +53,30 @@ components:
           type: string
       required:
         - status
-
+    TransformPhotoBody:
+      type: object
+      properties:
+        imageBase64:
+          type: string
+          description: Base64-encoded source image (without data URL prefix)
+        mimeType:
+          type: string
+          description: MIME type of the source image (e.g. image/jpeg, image/png)
+        direction:
+          type: string
+          enum: [dayToNight, nightToDay]
+          description: Direction of transformation
+      required:
+        - imageBase64
+        - mimeType
+        - direction
+    TransformPhotoResponse:
+      type: object
+      properties:
+        imageBase64:
+          type: string
+        mimeType:
+          type: string
+      required:
+        - imageBase64
+        - mimeType

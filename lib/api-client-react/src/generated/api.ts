@@ -5,18 +5,25 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  HealthStatus,
+  TransformPhotoBody,
+  TransformPhotoResponse,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +106,89 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Transform a photo from day to night or night to day
+ */
+export const getTransformPhotoUrl = () => {
+  return `/api/photo/transform`;
+};
+
+export const transformPhoto = async (
+  transformPhotoBody: TransformPhotoBody,
+  options?: RequestInit,
+): Promise<TransformPhotoResponse> => {
+  return customFetch<TransformPhotoResponse>(getTransformPhotoUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(transformPhotoBody),
+  });
+};
+
+export const getTransformPhotoMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof transformPhoto>>,
+    TError,
+    { data: BodyType<TransformPhotoBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof transformPhoto>>,
+  TError,
+  { data: BodyType<TransformPhotoBody> },
+  TContext
+> => {
+  const mutationKey = ["transformPhoto"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof transformPhoto>>,
+    { data: BodyType<TransformPhotoBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return transformPhoto(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type TransformPhotoMutationResult = NonNullable<
+  Awaited<ReturnType<typeof transformPhoto>>
+>;
+export type TransformPhotoMutationBody = BodyType<TransformPhotoBody>;
+export type TransformPhotoMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Transform a photo from day to night or night to day
+ */
+export const useTransformPhoto = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof transformPhoto>>,
+    TError,
+    { data: BodyType<TransformPhotoBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof transformPhoto>>,
+  TError,
+  { data: BodyType<TransformPhotoBody> },
+  TContext
+> => {
+  return useMutation(getTransformPhotoMutationOptions(options));
+};

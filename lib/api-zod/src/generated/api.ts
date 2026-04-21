@@ -14,3 +14,23 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * @summary Transform a photo from day to night or night to day
+ */
+export const TransformPhotoBody = zod.object({
+  imageBase64: zod
+    .string()
+    .describe("Base64-encoded source image (without data URL prefix)"),
+  mimeType: zod
+    .string()
+    .describe("MIME type of the source image (e.g. image\/jpeg, image\/png)"),
+  direction: zod
+    .enum(["dayToNight", "nightToDay"])
+    .describe("Direction of transformation"),
+});
+
+export const TransformPhotoResponse = zod.object({
+  imageBase64: zod.string(),
+  mimeType: zod.string(),
+});

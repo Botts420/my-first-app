@@ -8,3 +8,28 @@
 export interface HealthStatus {
   status: string;
 }
+
+/**
+ * Direction of transformation
+ */
+export type TransformPhotoBodyDirection =
+  (typeof TransformPhotoBodyDirection)[keyof typeof TransformPhotoBodyDirection];
+
+export const TransformPhotoBodyDirection = {
+  dayToNight: "dayToNight",
+  nightToDay: "nightToDay",
+} as const;
+
+export interface TransformPhotoBody {
+  /** Base64-encoded source image (without data URL prefix) */
+  imageBase64: string;
+  /** MIME type of the source image (e.g. image/jpeg, image/png) */
+  mimeType: string;
+  /** Direction of transformation */
+  direction: TransformPhotoBodyDirection;
+}
+
+export interface TransformPhotoResponse {
+  imageBase64: string;
+  mimeType: string;
+}

@@ -25,3 +25,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+- `day-night` (`/`) — React + Vite app that converts photos from day to night and vice versa using Gemini's nano banana image model. Backend route at `POST /api/photo/transform` lives in `artifacts/api-server/src/routes/photo.ts` and uses `@workspace/integrations-gemini-ai`.
