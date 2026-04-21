@@ -28,6 +28,12 @@ export const TransformPhotoBody = zod.object({
   direction: zod
     .enum(["dayToNight", "nightToDay"])
     .describe("Direction of transformation"),
+  customPrompt: zod
+    .string()
+    .optional()
+    .describe(
+      'Optional free-text additions\/amendments the user wants applied to the image (e.g. \"add fog\", \"make it sunset\", \"remove the people\")',
+    ),
 });
 
 export const TransformPhotoResponse = zod.object({

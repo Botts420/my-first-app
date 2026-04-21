@@ -27,6 +27,8 @@ export interface TransformPhotoBody {
   mimeType: string;
   /** Direction of transformation */
   direction: TransformPhotoBodyDirection;
+  /** Optional free-text additions/amendments the user wants applied to the image (e.g. "add fog", "make it sunset", "remove the people") */
+  customPrompt?: string;
 }
 
 export interface TransformPhotoResponse {

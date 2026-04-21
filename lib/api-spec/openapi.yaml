@@ -66,6 +66,9 @@ components:
           type: string
           enum: [dayToNight, nightToDay]
           description: Direction of transformation
+        customPrompt:
+          type: string
+          description: Optional free-text additions/amendments the user wants applied to the image (e.g. "add fog", "make it sunset", "remove the people")
       required:
         - imageBase64
         - mimeType

@@ -12,12 +12,17 @@ router.post("/photo/transform", async (req, res) => {
     return;
   }
 
-  const { imageBase64, mimeType, direction } = parsed.data;
+  const { imageBase64, mimeType, direction, customPrompt } = parsed.data;
 
-  const prompt =
+  const basePrompt =
     direction === "dayToNight"
       ? "Transform this photo into the same scene at night. Keep the exact composition, framing, perspective, subjects, and objects identical. Replace daytime lighting with realistic nighttime lighting: a dark sky (moon, stars, or city glow as appropriate), warm artificial lights from windows, lampposts, and signage, deep shadows, cool moonlit highlights, and accurate reflections. The result should look like a photograph taken at night of the exact same scene."
       : "Transform this photo into the same scene during daytime. Keep the exact composition, framing, perspective, subjects, and objects identical. Replace nighttime lighting with realistic daytime lighting: a bright sky (clear blue or naturally clouded), strong directional sunlight, soft natural shadows, vivid daylight colors, and accurate reflections. Turn off artificial lights. The result should look like a photograph taken in daylight of the exact same scene.";
+
+  const trimmedCustom = customPrompt?.trim();
+  const prompt = trimmedCustom
+    ? `${basePrompt}\n\nAlso apply these additional adjustments requested by the user, while still keeping the scene's composition and subjects intact: ${trimmedCustom}`
+    : basePrompt;
 
   try {
     const response = await ai.models.generateContent({

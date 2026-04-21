@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import { UploadCloud, Sun, Moon, ArrowRightLeft, Download, RotateCcw, Image as ImageIcon, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { UploadCloud, Sun, Moon, ArrowRightLeft, Download, RotateCcw, Image as ImageIcon, Loader2, Sparkles } from "lucide-react";
 import { useTransformPhoto } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ export function PhotoTransformer() {
   const [direction, setDirection] = useState<Direction>("dayToNight");
   const [isDragging, setIsDragging] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [customPrompt, setCustomPrompt] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -96,6 +98,7 @@ export function PhotoTransformer() {
             imageBase64: base64,
             mimeType: file.type,
             direction,
+            customPrompt: customPrompt.trim() ? customPrompt.trim() : undefined,
           },
         },
         {
@@ -139,10 +142,19 @@ export function PhotoTransformer() {
     setFile(null);
     setPreviewUrl(null);
     setResultUrl(null);
+    setCustomPrompt("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const promptSuggestions = [
+    "add light fog",
+    "make it golden hour",
+    "add gentle rain",
+    "snowy winter",
+    "neon city vibe",
+  ];
 
   return (
     <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-8 items-center min-h-[100dvh] justify-center">
@@ -191,8 +203,43 @@ export function PhotoTransformer() {
       )}
 
       {file && previewUrl && (
-        <div className="w-full flex flex-col items-center gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          
+        <div className="w-full flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+          {/* Custom prompt */}
+          <Card className="w-full max-w-3xl bg-card/60 backdrop-blur-sm border-border/50">
+            <CardContent className="p-4 sm:p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Custom tweaks <span className="text-muted-foreground font-normal">(optional)</span>
+              </div>
+              <Textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder='Describe small adjustments, e.g. "add light fog", "make it golden hour", "add gentle rain"'
+                disabled={transformMutation.isPending}
+                rows={2}
+                className="resize-none rounded-xl bg-background/60"
+              />
+              <div className="flex flex-wrap gap-2">
+                {promptSuggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    disabled={transformMutation.isPending}
+                    onClick={() =>
+                      setCustomPrompt((prev) =>
+                        prev.trim() ? `${prev.trim()}, ${s}` : s,
+                      )
+                    }
+                    className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    + {s}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Controls */}
           <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-card rounded-2xl shadow-sm border border-border/50">
             <div className="flex bg-muted p-1 rounded-xl">
@@ -229,7 +276,7 @@ export function PhotoTransformer() {
             <div className="flex gap-2">
               <Button 
                 onClick={handleTransform} 
-                disabled={transformMutation.isPending || !!resultUrl}
+                disabled={transformMutation.isPending}
                 className="gap-2 px-8 rounded-xl shadow-md transition-all hover:scale-105"
                 size="lg"
               >
@@ -241,7 +288,7 @@ export function PhotoTransformer() {
                 ) : (
                   <>
                     <ArrowRightLeft className="w-5 h-5" />
-                    Transform
+                    {resultUrl ? "Re-transform" : "Transform"}
                   </>
                 )}
               </Button>
