@@ -6,7 +6,7 @@ import NotFound from "@/pages/not-found";
 import { PhotoTransformer } from "@/components/photo-transformer";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Moon, Sun, Camera } from "lucide-react";
+import { Moon, Sun, Camera, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const queryClient = new QueryClient();
@@ -34,14 +34,27 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
             <span className="text-[15px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">photos</span>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full bg-background/50 backdrop-blur-sm border-border"
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-        >
-          {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full bg-background/50 backdrop-blur-sm border-border"
+            onClick={() => {
+              window.location.href = import.meta.env.BASE_URL;
+            }}
+            title="Start over"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full bg-background/50 backdrop-blur-sm border-border"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+          </Button>
+        </div>
       </header>
       <div className="pt-24">{children}</div>
     </div>
