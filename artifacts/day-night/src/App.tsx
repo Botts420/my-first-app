@@ -6,7 +6,7 @@ import NotFound from "@/pages/not-found";
 import { PhotoTransformer } from "@/components/photo-transformer";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const queryClient = new QueryClient();
@@ -23,17 +23,27 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen relative">
-      <div className="absolute top-4 right-4 z-50">
-        <Button 
-          variant="outline" 
-          size="icon" 
+      <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 bg-background/60 backdrop-blur-md border-b border-border/40">
+        <div className="flex items-center gap-2.5">
+          <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md">
+            <Camera className="w-5 h-5 text-primary-foreground" strokeWidth={2.25} />
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-300 ring-2 ring-background" />
+          </div>
+          <div className="flex flex-col leading-tight">
+            <span className="font-bold text-base tracking-tight text-foreground">Botts</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">photos</span>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
           className="rounded-full bg-background/50 backdrop-blur-sm border-border"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
           {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
         </Button>
-      </div>
-      {children}
+      </header>
+      <div className="pt-16">{children}</div>
     </div>
   );
 }
