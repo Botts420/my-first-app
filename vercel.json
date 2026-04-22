@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
+  "framework": null,
   "installCommand": "pnpm install --frozen-lockfile=false",
   "buildCommand": "pnpm -w exec tsc -b lib/api-zod lib/db lib/integrations-gemini-ai && BASE_PATH=/ PORT=3000 pnpm --filter @workspace/day-night run build",
   "outputDirectory": "artifacts/day-night/dist/public",
