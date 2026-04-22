@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile=false",
+  "buildCommand": "pnpm -w exec tsc -b lib/api-zod lib/db lib/integrations-gemini-ai && BASE_PATH=/ PORT=3000 pnpm --filter @workspace/day-night run build",
+  "outputDirectory": "artifacts/day-night/dist/public",
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "rewrites": [
+    { "source": "/api", "destination": "/api/index" },
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ]
+}
