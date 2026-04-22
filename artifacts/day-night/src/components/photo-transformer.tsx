@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { UploadCloud, Sun, Moon, Download, RotateCcw, Loader2, Settings2 } from "lucide-react";
+import { UploadCloud, Sun, Moon, Download, RotateCcw, Loader2, Wand2 } from "lucide-react";
 import { useTransformPhoto } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +16,15 @@ export function PhotoTransformer() {
   const [isDragging, setIsDragging] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [customPrompt, setCustomPrompt] = useState("");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const promptSuggestions = [
+    "add light fog",
+    "golden hour",
+    "gentle rain",
+    "snowy winter",
+    "neon city vibe",
+    "warmer tones",
+  ];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -113,7 +121,6 @@ export function PhotoTransformer() {
     setPreviewUrl(null);
     setResultUrl(null);
     setCustomPrompt("");
-    setShowAdvanced(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -219,40 +226,62 @@ export function PhotoTransformer() {
             </Button>
           </div>
 
-          {/* Advanced (collapsed by default) */}
-          <div className="w-full max-w-xl">
-            <button
-              type="button"
-              onClick={() => setShowAdvanced((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mx-auto"
-            >
-              <Settings2 className="w-3.5 h-3.5" />
-              {showAdvanced ? "Hide" : "Customize"}
-            </button>
-            {showAdvanced && (
-              <Card className="mt-3 bg-card/60 backdrop-blur-sm border-border/50">
-                <CardContent className="p-4 flex flex-col gap-3">
-                  <Textarea
-                    value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
-                    placeholder='Optional: e.g. "add light fog" or "golden hour"'
+          {/* Make changes panel */}
+          <Card className="w-full max-w-2xl bg-card/70 backdrop-blur-sm border-border/50 shadow-sm">
+            <CardContent className="p-4 sm:p-5 flex flex-col gap-3">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <Wand2 className="w-4 h-4 text-primary" />
+                Make changes
+              </div>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Describe a tweak, or tap a quick pick. Then hit Apply.
+              </p>
+              <Textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder='e.g. "add light fog", "make it golden hour", "more dramatic shadows"'
+                disabled={isPending}
+                rows={2}
+                className="resize-none rounded-xl bg-background/60 text-sm"
+              />
+              <div className="flex flex-wrap gap-1.5">
+                {promptSuggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
                     disabled={isPending}
-                    rows={2}
-                    className="resize-none rounded-xl bg-background/60 text-sm"
-                  />
+                    onClick={() =>
+                      setCustomPrompt((prev) => (prev.trim() ? `${prev.trim()}, ${s}` : s))
+                    }
+                    className="text-xs px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    + {s}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button
+                  size="sm"
+                  disabled={isPending || !file}
+                  onClick={() => file && runTransform(file, direction, customPrompt)}
+                  className="rounded-xl gap-1.5"
+                >
+                  <Wand2 className="w-3.5 h-3.5" /> Apply
+                </Button>
+                {customPrompt && (
                   <Button
                     size="sm"
-                    variant="secondary"
-                    disabled={isPending || !file}
-                    onClick={() => file && runTransform(file, direction, customPrompt)}
+                    variant="ghost"
+                    disabled={isPending}
+                    onClick={() => setCustomPrompt("")}
                     className="rounded-xl"
                   >
-                    Apply
+                    Clear
                   </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>
