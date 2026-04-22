@@ -31,23 +31,43 @@ export function PhotoTransformer() {
 
   const transformMutation = useTransformPhoto();
 
-  const fileToBase64 = (f: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(f);
-      reader.onload = () => resolve((reader.result as string).split(",")[1]);
-      reader.onerror = reject;
-    });
+  // Normalize EXIF orientation by re-encoding the image via canvas.
+  // Phones tag photos with rotation metadata; the AI ignores it and returns
+  // raw pixels, which then look "rotated" compared to the original preview.
+  const fileToBase64 = async (f: File): Promise<{ base64: string; mimeType: string }> => {
+    try {
+      const bitmap = await createImageBitmap(f, { imageOrientation: "from-image" });
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("no-canvas-ctx");
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close?.();
+      const outType = f.type === "image/png" ? "image/png" : "image/jpeg";
+      const dataUrl = canvas.toDataURL(outType, 0.92);
+      return { base64: dataUrl.split(",")[1], mimeType: outType };
+    } catch {
+      // Fallback: send the original bytes
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(f);
+        reader.onload = () =>
+          resolve({ base64: (reader.result as string).split(",")[1], mimeType: f.type });
+        reader.onerror = reject;
+      });
+    }
+  };
 
   const runTransform = useCallback(
     async (f: File, dir: Direction, prompt: string) => {
       try {
-        const base64 = await fileToBase64(f);
+        const { base64, mimeType } = await fileToBase64(f);
         transformMutation.mutate(
           {
             data: {
               imageBase64: base64,
-              mimeType: f.type,
+              mimeType,
               direction: dir,
               customPrompt: prompt.trim() || undefined,
             },
