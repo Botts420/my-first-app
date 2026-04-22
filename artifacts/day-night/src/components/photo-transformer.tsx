@@ -225,65 +225,68 @@ export function PhotoTransformer() {
               <RotateCcw className="w-4 h-4" /> New photo
             </Button>
           </div>
-
-          {/* Make changes panel */}
-          <Card className="w-full max-w-2xl bg-card/70 backdrop-blur-sm border-border/50 shadow-sm">
-            <CardContent className="p-4 sm:p-5 flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <Wand2 className="w-4 h-4 text-primary" />
-                Make changes
-              </div>
-              <p className="text-xs text-muted-foreground -mt-1">
-                Describe a tweak, or tap a quick pick. Then hit Apply.
-              </p>
-              <Textarea
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder='e.g. "add light fog", "make it golden hour", "more dramatic shadows"'
-                disabled={isPending}
-                rows={2}
-                className="resize-none rounded-xl bg-background/60 text-sm"
-              />
-              <div className="flex flex-wrap gap-1.5">
-                {promptSuggestions.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    disabled={isPending}
-                    onClick={() =>
-                      setCustomPrompt((prev) => (prev.trim() ? `${prev.trim()}, ${s}` : s))
-                    }
-                    className="text-xs px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                  >
-                    + {s}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2 pt-1">
-                <Button
-                  size="sm"
-                  disabled={isPending || !file}
-                  onClick={() => file && runTransform(file, direction, customPrompt)}
-                  className="rounded-xl gap-1.5"
-                >
-                  <Wand2 className="w-3.5 h-3.5" /> Apply
-                </Button>
-                {customPrompt && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={isPending}
-                    onClick={() => setCustomPrompt("")}
-                    className="rounded-xl"
-                  >
-                    Clear
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       )}
+
+      {/* Make changes panel - always visible */}
+      <Card className="w-full max-w-2xl bg-card/70 backdrop-blur-sm border-border/50 shadow-sm">
+        <CardContent className="p-4 sm:p-5 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Wand2 className="w-4 h-4 text-primary" />
+            Make changes
+          </div>
+          <p className="text-xs text-muted-foreground -mt-1">
+            {file
+              ? "Describe a tweak, or tap a quick pick. Then hit Apply."
+              : "Set up your tweak now — it'll apply to your photo as soon as you upload."}
+          </p>
+          <Textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder='e.g. "add light fog", "make it golden hour", "more dramatic shadows"'
+            disabled={isPending}
+            rows={2}
+            className="resize-none rounded-xl bg-background/60 text-sm"
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {promptSuggestions.map((s) => (
+              <button
+                key={s}
+                type="button"
+                disabled={isPending}
+                onClick={() =>
+                  setCustomPrompt((prev) => (prev.trim() ? `${prev.trim()}, ${s}` : s))
+                }
+                className="text-xs px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+              >
+                + {s}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button
+              size="sm"
+              disabled={isPending || !file}
+              onClick={() => file && runTransform(file, direction, customPrompt)}
+              className="rounded-xl gap-1.5"
+              title={!file ? "Upload a photo first" : undefined}
+            >
+              <Wand2 className="w-3.5 h-3.5" /> Apply
+            </Button>
+            {customPrompt && (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={isPending}
+                onClick={() => setCustomPrompt("")}
+                className="rounded-xl"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
